@@ -12,16 +12,19 @@ get() {
         tfmt=$(awk -v num="$tvalue" 'BEGIN { printf "%.2f", num / 1000 }')" ℃\n"
         value=$value$type":\t"$tfmt
     done
+    tput civis
     printf "\033[u\033[K"
     printf "%s$value"
     printf "\n"
+    freqvalue=""
     for u in $cpufreqs; do
         freq=$(($(cat "$u") / 1000))
         parent=$(dirname "$u")
         current=$(dirname "$parent")
         label=$(basename "$current")
-        printf "%s%s$label:\t$freq MHz                  \n"
+        freqvalue="$freqvalue$label:\t$freq MHz                  \n"
     done
+    printf "%s$freqvalue"
 }
 while (true); do
     get
