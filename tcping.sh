@@ -15,3 +15,6 @@ else
     printf "\r\ncurl not found\r\n"
 fi
 printf "\r\n\r\n"
+######################
+#### by lalaki.cn ####
+######################
