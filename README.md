@@ -19,4 +19,11 @@ curl -so $(basename $LINK) $LINK && sh $(basename $LINK)
 LINK=https://ghproxy.com/raw.githubusercontent.com/lalakii/orangepi_zero3_tools/master/tcping.sh
 curl -so $(basename $LINK) $LINK && sh $(basename $LINK)
 
+## Get json data:
+
+LINK=https://ghproxy.com/raw.githubusercontent.com/lalakii/orangepi_zero3_tools/master/json_data.sh
+curl -so $(basename $LINK) $LINK && sh $(basename $LINK)
+
 ```
+
+## END
