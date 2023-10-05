@@ -50,12 +50,20 @@ info() {
     host=\"$(hostname)\"
     ip=[\"$(hostname -I | sed "s/ /\",\"/g" | sed 's/,\"*$//')]
     disk=$(df / | tail -n1 | awk '{print "["$3","$4"]"}')
+    krv=\"$(uname -or)\"
+    arch=\"$(uname -m)\"
+    boot_time=\"$(uptime -s)\"
+    sys_time=\"$(date +'%Y-%m-%d %H:%M:%S')\"
     cat <<EOF
 {
     "host":${host},
     "os":"${PRETTY_NAME}",
+    "kernel":${krv},
+    "machine":${arch},
     "ip":${ip},
-    "disk":${disk}
+    "disk":${disk},
+    "boot_time":${boot_time},
+    "sys_time":${sys_time}
 }
 EOF
 }
@@ -70,5 +78,4 @@ case $1 in
     echo "$0 [ state | info ]"
     ;;
 esac
-
-### lalaki.cn ###
+## lalaki.cn ##
