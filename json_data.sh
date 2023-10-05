@@ -34,13 +34,13 @@ sr() {
     mem=$(free | grep -i mem | awk '{print "["$3","$2"]"}')
     cat <<EOF
 {
-        "sensors":{
-                ${sensors}
-        },
-        "core":[
-                ${core}
-        ],
-        "mem": ${mem}
+    "sensors":{
+        ${sensors}
+    },
+    "core":[
+        ${core}
+    ],
+    "mem": ${mem}
 }
 EOF
 }
@@ -78,6 +78,11 @@ info() {
 }
 EOF
 }
+all() {
+    cat <<EOF
+[$(sr),$(info)]
+EOF
+}
 case $1 in
 "state")
     sr
@@ -85,9 +90,11 @@ case $1 in
 "info")
     info
     ;;
+"all")
+    all
+    ;;
 *)
-    echo "$0 [ state | info ]"
+    echo "$0 [ state | info | all ]"
     ;;
 esac
-
 ## lalaki.cn ##
