@@ -1,0 +1,63 @@
+#!/bin/sh
+# github.com/lalakii/
+VMLINUZ_DIR="/boot/"
+MODULES_DIR="/lib/modules/"
+VER="$(basename "$0"), VER: 1.0"
+if [ "$1" = "" ]; then
+    printf "%s$VER\nby: lalaki.cn\n"
+    exit 0
+fi
+if [ "$(whoami)" != "root" ]; then
+    printf "ERROR: please run as root!\n"
+    exit 1
+fi
+local=$(pwd)
+pkg_abs=$1
+if [ ! -e "$pkg_abs" ]; then
+    printf "ERROR: file not found\n"
+    exit 1
+fi
+printf "Package: %s$pkg_abs\n"
+wd=/tmp/$(cat /proc/sys/kernel/random/uuid)
+mkdir -p "$wd"
+if [ ! -d "$wd" ]; then
+    printf "ERROR: failed create temp directory!\n"
+    exit 1
+fi
+cp "$pkg_abs" "$wd"
+cd "$wd" || exit
+ar x "$(basename "$1")" && tar mxf data.tar.xz
+tmp_boot_dir=$wd$VMLINUZ_DIR
+tmp_modules_dir=$wd$MODULES_DIR
+if [ ! -d "$tmp_boot_dir" ] || [ ! -d "$tmp_modules_dir" ]; then
+    printf "ERROR: missing some directory!\n"
+    exit 1
+fi
+vmlinuz=$(find "$tmp_boot_dir" | grep vmlinuz | head -n1)
+vmlinuz_name=$(basename "$vmlinuz")
+img=$VMLINUZ_DIR"Image"
+if [ -e "$img" ]; then
+    rm $img
+fi
+cp "$vmlinuz" $VMLINUZ_DIR
+if ! ln -s "$VMLINUZ_DIR$vmlinuz_name" "$img" >/dev/null 2>&1; then
+    mv "$VMLINUZ_DIR$vmlinuz_name" "$img"
+    printf "INFO: detected FAT filesystem\n"
+fi
+if [ -d $MODULES_DIR ]; then
+    rm -r $MODULES_DIR
+fi
+cp -r "$tmp_modules_dir" /lib/
+cd "$local" || exit
+printf "Version: %s$(printf "%s$vmlinuz_name" | awk -F'-' '{print $2}')\nCreate initramfs...\n"
+rm -r "$wd"
+depmod >/dev/null 2>&1
+if type mkinitcpio >/dev/null 2>&1; then
+    mkinitcpio -P
+elif type initramfs >/dev/null 2>&1; then
+    initramfs -u
+elif type dracut >/dev/null 2>&1; then
+    dracut -f
+else
+    printf "WARN: need to create initramfs manually!\n"
+fi
